@@ -22,6 +22,7 @@ def chart1(dpd,base,myliquidity):
 
     dpd['date']=pd.to_datetime(dpd['periodStartUnix'],unit='s')
 
+    #print(dpd.to_string())
     # 1 Chart
     
     #dpd['fgV']= (dpd['fg0'] / dpd['close'].iloc[0] + dpd['fg1'])
@@ -30,6 +31,7 @@ def chart1(dpd,base,myliquidity):
     data=dpd[['date','myfee0','myfee1','fgV','feeV','feeusd','amountV','ActiveLiq','amountunb','amount0','amount1','close']]
     data=data.fillna(0)
 
+    print(data.to_string())
     temp =  data.resample('D',on='date').sum()
     final1=temp[['myfee0','myfee1','feeV','fgV','feeusd']].copy()
 
@@ -50,21 +52,23 @@ def chart1(dpd,base,myliquidity):
     print(final1[['feeunb','feeV','feeusd','amountV','ActiveLiq','S1%','unb%','ActiveLiq']])
 
     print('------------------------------------------------------------------')
-    print("this position returned", final1['feeV'].sum()/final1['amountV'].iloc[0]*100,"in ",len(final1.index)," days, for an apr of ",final1['feeV'].sum()/final1['amountV'].iloc[0]*365/len(final1.index)*100)
+    print("this position returned%", final1['feeV'].sum()/final1['amountV'].iloc[0]*100,"in ",len(final1.index)," days, for an apr of ",final1['feeV'].sum()/final1['amountV'].iloc[0]*365/len(final1.index)*100)
+    print("this position returned%(Including IL)", (final1['feeV'].sum() + final1['amountVlast'].iloc[-1] - final1['amountV'].iloc[0])/final1['amountV'].iloc[0]*100,"in ",len(final1.index)," days, for an apr of ",(final1['feeV'].sum() + final1['amountVlast'].iloc[-1] - final1['amountV'].iloc[0])/final1['amountV'].iloc[0]*365/len(final1.index)*100)
     print("a base  position returned", final1['feeunb'].sum()/final1['amountV'].iloc[0]*100,"in ",len(final1.index)," days, for an apr of ",final1['feeunb'].sum()/final1['amountV'].iloc[0]*365/len(final1.index)*100)
     
     print ("fee in token 1 and token 2",dpd['myfee0'].sum(),dpd['myfee1'].sum() )
     print("totalFee in USD", final1['feeusd'].sum())
     print ('Your liquidity was active for:',final1['ActiveLiq'].mean())
-    forecast= (dpd['feeVbase0'].sum()*myliquidity*final1['ActiveLiq'].mean())
-    print(dpd['feeVbase0'])
-    print('forecast: ',forecast)
+    if base == 1:
+        forecast= (dpd['feeVbase0'].sum()*myliquidity*final1['ActiveLiq'].mean())
+        print(dpd['feeVbase0'])
+        print('forecast: ',forecast)
     print('------------------------------------------------------------------')
     # 1 chart e' completo
     
     # 2 chart
 
-    
+"""
     final2=temp3[['amountV','amount0','amount1','close']].copy()
     final2['feeV']=temp['feeV'].copy()
     final2[['amountVlast']]=temp4[['amountV']]
@@ -112,7 +116,7 @@ def chart1(dpd,base,myliquidity):
 
     print(ch2)
     print(ch3)
-
+"""
 
 
    
