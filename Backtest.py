@@ -30,7 +30,7 @@ dpd['fg1'] = ((dpd['feeGrowthGlobal1X128'])/(2**128))/(10**decimal1)
 #pd.options.display.float_format = '{:.30f}'.format
 mini = 1500
 maxi = 1900
-target = 2000 # value to invest in term of USD
+target = 2000 # value to invest in term of base(here is token0:USDC)
 base = 0
 
 
