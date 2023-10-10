@@ -53,8 +53,8 @@ base = 0
 
 #Calculate F0G and F1G (fee earned by an unbounded unit of liquidity in one period)
 
-dpd['fg0shift'] = dpd['fg0'].shift(-1)
-dpd['fg1shift'] = dpd['fg1'].shift(-1)
+dpd['fg0shift'] = dpd['fg0'].shift(1)
+dpd['fg1shift'] = dpd['fg1'].shift(1)
 dpd['fee0token'] = dpd['fg0'] - dpd['fg0shift']
 dpd['fee1token'] = dpd['fg1'] - dpd['fg1shift']
 
@@ -65,23 +65,23 @@ SMAX = np.sqrt(maxi* 10 ** (decimal))
 
 if base == 0:
 
-    sqrt0 = np.sqrt(dpd['close'].iloc[-1]* 10 ** (decimal))
+    sqrt0 = np.sqrt(dpd['close'].iloc[0]* 10 ** (decimal))
     dpd['price0'] = dpd['close']
 
 else:
     
-    sqrt0 = np.sqrt(1/dpd['close'].iloc[-1]* 10 ** (decimal))
+    sqrt0 = np.sqrt(1/dpd['close'].iloc[0]* 10 ** (decimal))
     dpd['price0'] = 1/dpd['close']
     
 if sqrt0>SMIN and sqrt0<SMAX:
 
-        deltaL = target / ((sqrt0 - SMIN)  + (((1 / sqrt0) - (1 / SMAX)) * (dpd['price0'].iloc[-1]* 10 ** (decimal))))
+        deltaL = target / ((sqrt0 - SMIN)  + (((1 / sqrt0) - (1 / SMAX)) * (dpd['price0'].iloc[0]* 10 ** (decimal))))
         amount1 = deltaL * (sqrt0-SMIN)
         amount0 = deltaL * ((1/sqrt0)-(1/SMAX))* 10 ** (decimal)
         
 elif sqrt0<SMIN:
 
-        deltaL = target / (((1 / SMIN) - (1 / SMAX)) * (dpd['price0'].iloc[-1]))
+        deltaL = target / (((1 / SMIN) - (1 / SMAX)) * (dpd['price0'].iloc[0]))
         amount1 = 0
         amount0 = deltaL * (( 1/SMIN ) - ( 1/SMAX ))
 
@@ -95,7 +95,7 @@ print("Amounts:",amount0,amount1)
 
 #print(dpd['price0'].iloc[-1],mini,maxi)
 #print((dpd['price0'].iloc[-1],mini,maxi,amount0,amount1,decimal0,decimal1))
-myliquidity = liquidity.get_liquidity(dpd['price0'].iloc[-1],mini,maxi,amount0,amount1,decimal0,decimal1)
+myliquidity = liquidity.get_liquidity(dpd['price0'].iloc[0],mini,maxi,amount0,amount1,decimal0,decimal1)
 
 print("OK myliquidity",myliquidity)
 

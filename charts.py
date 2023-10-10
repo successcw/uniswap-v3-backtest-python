@@ -8,7 +8,7 @@ def chart1(dpd,base,myliquidity):
         dpd['amountV']= (dpd['amount0'] ) + (dpd['amount1']* dpd['close'])
         dpd['amountunb']= (dpd['amount0unb'] )+ (dpd['amount1unb']* dpd['close'])
         dpd['fgV']= (dpd['fee0token'])+ (dpd['fee1token']* dpd['close'])
-        dpd['feeusd']= dpd['feeV'] * (dpd['pool.totalValueLockedUSD'].iloc[0] / (dpd['pool.totalValueLockedToken1'].iloc[0]* dpd['close'].iloc[0]+(dpd['pool.totalValueLockedToken0'].iloc[0])))
+        dpd['feeusd']= dpd['feeV'] * (dpd['pool.totalValueLockedUSD'].iloc[-1] / (dpd['pool.totalValueLockedToken1'].iloc[-1]* dpd['close'].iloc[-1]+(dpd['pool.totalValueLockedToken0'].iloc[-1])))
 
 
     else:
@@ -18,7 +18,7 @@ def chart1(dpd,base,myliquidity):
         dpd['feeVbase0']= dpd['myfee0'] + (dpd['myfee1']* dpd['close'])
         dpd['amountunb']= (dpd['amount0unb'] / dpd['close'])+ dpd['amount1unb']
         dpd['fgV']=(dpd['fee0token'] / dpd['close'])+ dpd['fee1token']
-        dpd['feeusd']= dpd['feeV'] * ( dpd['pool.totalValueLockedUSD'].iloc[0] / (dpd['pool.totalValueLockedToken1'].iloc[0] + (dpd['pool.totalValueLockedToken0'].iloc[0]/dpd['close'].iloc[0])))
+        dpd['feeusd']= dpd['feeV'] * ( dpd['pool.totalValueLockedUSD'].iloc[-1] / (dpd['pool.totalValueLockedToken1'].iloc[-1] + (dpd['pool.totalValueLockedToken0'].iloc[-1]/dpd['close'].iloc[-1])))
 
     dpd['date']=pd.to_datetime(dpd['periodStartUnix'],unit='s')
 
@@ -41,7 +41,7 @@ def chart1(dpd,base,myliquidity):
     temp3 = data.resample('D',on='date').first()
     final1[['amountV','amountunb']]=temp3[['amountV','amountunb']].copy()
     temp4 = data.resample('D',on='date').last()
-    final1[['amountVlast']]=temp4[['amountV']]
+    final1[['amountVlast','close']]=temp4[['amountV', 'close']].copy()
 
     final1['S1%']=final1['feeV']/final1['amountV']*100#*365
     final1['unb%']=final1['fgV']/final1['amountunb']*100#*365
@@ -49,7 +49,7 @@ def chart1(dpd,base,myliquidity):
     final1['feeunb'] = final1['amountV']*final1['unb%']/100
     final1.to_csv("chart1.csv",sep = ";")
     
-    print(final1[['feeunb','feeV','feeusd','amountV','S1%','unb%','ActiveLiq','multiplier']])
+    print(final1[['feeunb','feeV','feeusd','amountV','amountVlast','S1%','unb%','ActiveLiq','multiplier','close']])
 
     print('------------------------------------------------------------------')
     print("this position returned%", final1['feeV'].sum()/final1['amountV'].iloc[0]*100,"in ",len(final1.index)," days, for an apr of ",final1['feeV'].sum()/final1['amountV'].iloc[0]*365/len(final1.index)*100)
@@ -58,7 +58,8 @@ def chart1(dpd,base,myliquidity):
     
     print ("fee in token0 and token1",dpd['myfee0'].sum(),dpd['myfee1'].sum())
     print("totalFee in USD", final1['feeusd'].sum())
-    print("totalFee in USD(today)", dpd['myfee0'].sum() + dpd['myfee1'].sum() * dpd['close'].iloc[0])
+    print("totalFee in USD(today)", dpd['myfee0'].sum() + dpd['myfee1'].sum() * dpd['close'].iloc[-1])
+    print("this position returned%(Including IL)", (dpd['myfee0'].sum() + dpd['myfee1'].sum() * dpd['close'].iloc[-1] + final1['amountVlast'].iloc[-1] - final1['amountV'].iloc[0])/final1['amountV'].iloc[0]*100,"in ",len(final1.index)," days, for an apr of ",(dpd['myfee0'].sum() + dpd['myfee1'].sum() * dpd['close'].iloc[-1] + final1['amountVlast'].iloc[-1] - final1['amountV'].iloc[0])/final1['amountV'].iloc[0]*365/len(final1.index)*100)
     print ('Your liquidity was active for:',final1['ActiveLiq'].mean())
     if base == 1:
         forecast= (dpd['feeVbase0'].sum()*myliquidity*final1['ActiveLiq'].mean())

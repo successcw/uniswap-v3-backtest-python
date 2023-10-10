@@ -42,7 +42,7 @@ def graph(network,Adress,fromdate):
     query = gql('''
     query ($fromdate: Int!)
     {
-    poolHourDatas(where:{pool:"'''+str(Adress)+'''",periodStartUnix_gt:$fromdate},orderBy:periodStartUnix,orderDirection:desc,first:1000)
+    poolHourDatas(where:{pool:"'''+str(Adress)+'''",periodStartUnix_gt:$fromdate},orderBy:periodStartUnix,orderDirection:asc,first:1000)
     {
     periodStartUnix
     liquidity
