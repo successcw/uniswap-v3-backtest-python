@@ -6,7 +6,22 @@ import numpy as np
 import liquidity
 import GraphBacktest
 import charts
+import sys
 
+args = sys.argv
+if len(args) < 4:
+    print("usage: start_time end_time current_price")
+    exit(1)
+
+startfrom = args[1]
+endto = args[2]
+mini = int(args[3]) - int(args[3])*0.15
+maxi = int(args[3]) + int(args[3])*0.15
+target = 1000 # value to invest in term of base(here is token0:USDC)
+
+print("startfrom ", startfrom)
+print("endto", endto)
+print("price", mini, maxi)
 # network 1 ETH, 2 ARB, 3 OPT
 
 # Note: all letters need to be lowercase!
@@ -15,11 +30,12 @@ Adress = "0xcb0c5d9d92f4f2f80cce7aa271a1e148c226e19d" # Rai Dai
 Adress = "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640" # ETH USDC Ethereum
 #Adress = "0x2e9c575206288f2219409289035facac0b670c2f" # ETH DAI Optimism
 #Adress = "0x68f180fcce6836688e9084f035309e29bf0a2095" #  WBTC DAI
-startfrom = 1632081600
 network = 1
 
-dpd = GraphBacktest.graph(network,Adress,startfrom)
-
+#dpd = GraphBacktest.graph(network,Adress,startfrom)
+df = pd.read_csv('gql.csv', parse_dates=['datetime'])
+dpd = df[(df['datetime'] <= endto) & (df['datetime'] >= startfrom)].copy().reset_index()
+#print(dpd)
        
 decimal0 = dpd.iloc[0]['pool.token0.decimals']
 decimal1 = dpd.iloc[0]['pool.token1.decimals']
@@ -28,11 +44,7 @@ dpd['fg0'] = ((dpd['feeGrowthGlobal0X128'])/(2**128))/(10**decimal0)
 dpd['fg1'] = ((dpd['feeGrowthGlobal1X128'])/(2**128))/(10**decimal1)
 
 #pd.options.display.float_format = '{:.30f}'.format
-mini = 1500
-maxi = 1900
-target = 2000 # value to invest in term of base(here is token0:USDC)
 base = 0
-
 
 # mini = 1 / 3215    #optimism
 # maxi = 1 / 2903.3 

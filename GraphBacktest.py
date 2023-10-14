@@ -1,6 +1,7 @@
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import pandas as pd
+import time
 
 
 def graph(network,Adress,fromdate):
@@ -67,12 +68,25 @@ def graph(network,Adress,fromdate):
  
     }
     ''')
-    params = {
-    "fromdate": fromdate
-    }
 
-    response = client.execute(query,variable_values=params)
-    dpd =pd.json_normalize(response['poolHourDatas'])
-    dpd=dpd.astype(float)
-    return dpd
+    first_run = True
+    print("time", time.time())
+    while fromdate < time.time():
+        print(fromdate)
+        print(pd.to_datetime(fromdate,unit='s'))
+        params = {
+        "fromdate": fromdate
+        }
+        response = client.execute(query,variable_values=params)
+        dpd = pd.json_normalize(response['poolHourDatas'])
+        dpd = dpd.astype(float)
+        if first_run:
+            df = dpd
+            first_run = False
+        else:
+            df = pd.concat([df,dpd], ignore_index=True)
+        #print(dpd)
+        fromdate = fromdate + 1000*3600
+
+    return df
 
